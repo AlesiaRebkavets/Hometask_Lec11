@@ -6,25 +6,49 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 
 namespace Lecture11
 {
     internal class Tests
     {
         private IWebDriver _driver;
+        private Actions _driverActions;
+        private IJavaScriptExecutor _javascriptExecutor;
+        private WebDriverWait _driverWait;
+
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
             _driver = new ChromeDriver();
+            //_driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);   // wait: variant 3    комментарий для себя, эта строка взята как копипаста из лекции Ивана чтобы не забыть
+            _driver.Manage().Window.Maximize();
+            _driverActions = new Actions(_driver);
+            _javascriptExecutor = (IJavaScriptExecutor)_driver;
+            _driverWait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
         }
 
         [Test]
-        public void Test1()
+        public void FirstSeleniumTest()  // ТЕСТ НЕ ЯВЛЯЕТСЯ ЧАСТЬЮ ДЗ. СКОПИПАСТИЛА ЕГО С 11-Й ЛЕКЦИИ ЧТОБЫ ИМЕТЬ УДОБНЫЙ НАГЛЯДНЫЙ ОРИЕНТИР
         {
             _driver.Navigate().GoToUrl("https://demoqa.com/text-box");
-            _driver.Manage().Window.Maximize();
+            _driverActions.SendKeys(Keys.PageDown).Perform(); // for the chain of actions BUILD() is needed: _driverActions.SendKeys(Keys.PageDown).Click().MoveToElement().Build().Perform(); 
 
             var fullName = "Name Full";
+
+            var fnTextBox = _driverWait.Until(drv => drv.FindElement(By.Id("userName")));  // wait: variant 1
+
+            _driverWait.Until(drv =>                                                       // wait: variant 2
+            {
+                if (drv.FindElements(By.Id("userName")).Count > 0)
+                {
+                    return true;
+                }
+                return false;
+            });
+                    
+
             var fullNameTextBox = _driver.FindElement(By.Id("userName"));
             fullNameTextBox.SendKeys(fullName);
 
@@ -41,8 +65,12 @@ namespace Lecture11
             permanentAddressTextBox.SendKeys(permanentAddress);
 
             var submitButton = _driver.FindElement(By.Id("submit"));
+            _javascriptExecutor.ExecuteScript("arguments[0].scrollIntoView()", submitButton);
             submitButton.Click();
 
+            var currentAddressResult = _driver.FindElement(By.XPath("//p[@id='currentAddress']"));
+            var currentAddressResultText = currentAddressResult.Text;
+            Assert.IsTrue(currentAddressResultText.Contains(currentAddress));
         }
 
         [OneTimeTearDown]
