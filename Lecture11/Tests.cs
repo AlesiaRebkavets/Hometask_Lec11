@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -71,6 +72,24 @@ namespace Lecture11
             var currentAddressResult = _driver.FindElement(By.XPath("//p[@id='currentAddress']"));
             var currentAddressResultText = currentAddressResult.Text;
             Assert.IsTrue(currentAddressResultText.Contains(currentAddress));
+        }
+
+        [Test]
+        public void IsCheckBoxElementSelected()     // test for Check Box
+        {
+            _driver.Navigate().GoToUrl("https://demoqa.com/checkbox");  // opens the indicated url
+            var homeCollapseButton = _driver.FindElement(By.XPath("//label[@for=\"tree-node-home\"]/../button"));   // finding homeCollapseButton
+            homeCollapseButton.Click();   // clicking the button
+            var documentsCollapseButton = _driver.FindElement(By.XPath("//label[@for=\"tree-node-documents\"]/../button")); // finding documentsCollapseButton
+            documentsCollapseButton.Click(); // clicking the button
+            var officeCollapseButton = _driver.FindElement(By.XPath("//label[@for=\"tree-node-office\"]/../button")); // finding officeCollapseButton
+            officeCollapseButton.Click();   // clicking the button
+            var privateCheckbox = _driver.FindElement(By.XPath("//label[@for=\"tree-node-private\"]/span[1]")); // finding privateCheckbox
+            privateCheckbox.Click();   // selecting the element;
+            var classifiedCheckbox = _driver.FindElement(By.XPath("//label[@for=\"tree-node-classified\"]/span"));  // finding classifiedCheckbox
+            classifiedCheckbox.Click();  // selecting the element;
+            var youHaveSelectedLabel = _driver.FindElement(By.XPath("//span[text()=\"private\"]")).Text + " " + _driver.FindElement(By.XPath("//span[text()=\"classified\"]")).Text;  // saving the displayed final text to a separate variable
+            Assert.IsTrue(youHaveSelectedLabel.Equals("private classified"));  // verifying if the displayed text is equal to "private classified"
         }
 
         [OneTimeTearDown]
