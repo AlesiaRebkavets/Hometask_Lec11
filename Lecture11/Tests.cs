@@ -88,8 +88,18 @@ namespace Lecture11
             privateCheckbox.Click();   // selecting the element;
             var classifiedCheckbox = _driver.FindElement(By.XPath("//label[@for=\"tree-node-classified\"]/span"));  // finding classifiedCheckbox
             classifiedCheckbox.Click();  // selecting the element;
-            var youHaveSelectedLabel = _driver.FindElement(By.XPath("//span[text()=\"private\"]")).Text + " " + _driver.FindElement(By.XPath("//span[text()=\"classified\"]")).Text;  // saving the displayed final text to a separate variable
-            Assert.IsTrue(youHaveSelectedLabel.Equals("private classified"));  // verifying if the displayed text is equal to "private classified"
+            var youHaveSelectedLabelText = _driver.FindElement(By.XPath("//span[text()=\"private\"]")).Text + " " + _driver.FindElement(By.XPath("//span[text()=\"classified\"]")).Text;  // saving the displayed final text to a separate variable
+            Assert.IsTrue(youHaveSelectedLabelText.Equals("private classified"));  // verifying if the displayed text is equal to "private classified"
+        }
+
+        [Test]
+        public void SelectRadioButton()
+        {
+            _driver.Navigate().GoToUrl("https://demoqa.com/radio-button");    // opens the indicated url
+            var impressiveRadio = _driver.FindElement(By.XPath("//label[text()=\"Impressive\"]"));   // finding impressiveRadio
+            impressiveRadio.Click();  // clicking the button
+            var youHaveSelectedLabelText = _driver.FindElement(By.XPath("//p[contains(text(), \"You have selected\")]/span")).Text;  // saving the displayed final text to a separate variable
+            Assert.That(youHaveSelectedLabelText.Equals("Impressive"), Is.True);  // verifying if the displayed text is equal to "Impressive"
         }
 
         [OneTimeTearDown]
