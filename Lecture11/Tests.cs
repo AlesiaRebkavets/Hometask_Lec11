@@ -93,13 +93,54 @@ namespace Lecture11
         }
 
         [Test]
-        public void SelectRadioButton()
+        public void SelectRadioButton()      // test for Radio Button
         {
             _driver.Navigate().GoToUrl("https://demoqa.com/radio-button");    // opens the indicated url
             var impressiveRadio = _driver.FindElement(By.XPath("//label[text()=\"Impressive\"]"));   // finding impressiveRadio
             impressiveRadio.Click();  // clicking the button
             var youHaveSelectedLabelText = _driver.FindElement(By.XPath("//p[contains(text(), \"You have selected\")]/span")).Text;  // saving the displayed final text to a separate variable
             Assert.That(youHaveSelectedLabelText.Equals("Impressive"), Is.True);  // verifying if the displayed text is equal to "Impressive"
+        }
+
+        [Test]
+        public void AddRowToAWebTable()     // test for Web Tables
+        {
+            _driver.Navigate().GoToUrl("https://demoqa.com/webtables");         // opens the indicated url
+            var AddButton = _driver.FindElement(By.Id("addNewRecordButton"));   // finding "Add" button element
+            AddButton.Click();    // clicking the "Add" button
+            var registrationForm = _driver.FindElement(By.Id("registration-form-modal"));  // finding registration form modal label
+
+            Assert.IsTrue(registrationForm.Displayed);   // verifying if "Registration Form" modal opened
+
+            var FirstNameTextBox = _driver.FindElement(By.Id("firstName"));   // finding elements of registration form
+            var LastNameTextBox = _driver.FindElement(By.Id("lastName"));
+            var EmailTextBox = _driver.FindElement(By.Id("userEmail"));
+            var AgeTextBox = _driver.FindElement(By.Id("age"));
+            var SalaryTextBox = _driver.FindElement(By.Id("salary"));
+            var DepartmentTextBox = _driver.FindElement(By.Id("department"));
+            var SubmitButton = _driver.FindElement(By.Id("submit"));
+
+            FirstNameTextBox.SendKeys("Walter");    // entering values to the registration form fields
+            LastNameTextBox.SendKeys("White");
+            EmailTextBox.SendKeys("heisenberg@gmail.com");
+            AgeTextBox.SendKeys("51");
+            SalaryTextBox.SendKeys("11000000");
+            DepartmentTextBox.SendKeys("Chemistry Department");
+            SubmitButton.Click();
+
+            var FirstNameTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][1]"));   // finding columns of the fourth table row
+            var LastNameTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][2]"));
+            var AgeTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][3]"));
+            var EmailTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][4]"));
+            var SalaryTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][5]"));
+            var DepartmentTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][6]"));
+
+            Assert.IsTrue(FirstNameTableColumn.Text.Equals("Walter"));         // asserts to verify that the entred data correctly displayed in the table
+            Assert.IsTrue(LastNameTableColumn.Text.Equals("White"));
+            Assert.IsTrue(AgeTableColumn.Text.Equals("51"));
+            Assert.IsTrue(EmailTableColumn.Text.Equals("heisenberg@gmail.com"));
+            Assert.IsTrue(SalaryTableColumn.Text.Equals("11000000"));
+            Assert.IsTrue(DepartmentTableColumn.Text.Equals("Chemistry Department"));
         }
 
         [OneTimeTearDown]
