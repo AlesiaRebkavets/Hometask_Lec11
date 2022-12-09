@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -98,8 +99,9 @@ namespace Lecture11
             _driver.Navigate().GoToUrl("https://demoqa.com/radio-button");    // opens the indicated url
             var impressiveRadio = _driver.FindElement(By.XPath("//label[text()=\"Impressive\"]"));   // finding impressiveRadio
             impressiveRadio.Click();  // clicking the button
-            var youHaveSelectedLabelText = _driver.FindElement(By.XPath("//p[contains(text(), \"You have selected\")]/span")).Text;  // saving the displayed final text to a separate variable
-            Assert.That(youHaveSelectedLabelText.Equals("Impressive"), Is.True);  // verifying if the displayed text is equal to "Impressive"
+            var youHaveSelectedLabel = _driver.FindElement(By.XPath("//p[contains(text(), \"You have selected\")]/span"));  // saving locator of the displayed final text 
+            Assert.That(youHaveSelectedLabel.Text.Equals("Impressive"), Is.True);  // verifying if the displayed text is equal to "Impressive"
+            Assert.IsTrue(youHaveSelectedLabel.Displayed);
         }
 
         [Test]
@@ -142,6 +144,105 @@ namespace Lecture11
             Assert.IsTrue(SalaryTableColumn.Text.Equals("11000000"));
             Assert.IsTrue(DepartmentTableColumn.Text.Equals("Chemistry Department"));
         }
+
+        [Test]
+        public void ButtonsClickTest()     //test for Buttons
+        {
+            _driver.Navigate().GoToUrl("https://demoqa.com/buttons");         // opens the indicated url
+
+            var doubleClickButton = _driver.FindElement(By.Id("doubleClickBtn"));       // saving locators for the buttons
+            var rightClickButton = _driver.FindElement(By.Id("rightClickBtn"));
+            var clickButton = _driver.FindElement(By.XPath("//button[text()=\"Click Me\"]"));
+
+            _driverActions.DoubleClick(doubleClickButton).Perform();      // performing double click
+            _driverActions.ContextClick(rightClickButton).Perform();      // performing right click
+            _driverActions.Click(clickButton).Perform();                  // performing button click
+
+            var doubleClickMessage = _driver.FindElement(By.Id("doubleClickMessage"));   // saving locators for the messages displayed
+            var rightClickMessage = _driver.FindElement(By.Id("rightClickMessage"));
+            var clickMessage = _driver.FindElement(By.Id("dynamicClickMessage"));   
+
+            Assert.IsTrue(doubleClickMessage.Displayed);   // verifying that message appeared after double click 
+            Assert.IsTrue(rightClickMessage.Displayed);    // verifying that message appeared after right click
+            Assert.IsTrue(clickMessage.Displayed);         // verifying that message appeared after button click
+
+            Assert.IsTrue(doubleClickMessage.Text.Equals("You have done a double click"));  // verifying that message appeared after double click is correct
+            Assert.IsTrue(rightClickMessage.Text.Equals("You have done a right click"));    // verifying that message appeared after right click is correct
+            Assert.IsTrue(clickMessage.Text.Equals("You have done a dynamic click"));       // verifying that message appeared after button click is correct               
+        }
+
+        [Test]
+        public void LinksTest()     //test for Buttons
+        {
+            _driver.Navigate().GoToUrl("https://demoqa.com/links");         // opens the indicated url
+
+            var homeLink = _driver.FindElement(By.Id("simpleLink"));          // locators for first 2 links (leading to the other webpage)
+            var homeIrHZqLink = _driver.FindElement(By.Id("dynamicLink"));
+
+            var createdLink = _driver.FindElement(By.Id("created"));          // locators for the other links (api)
+            var noContentLink = _driver.FindElement(By.Id("no-content"));
+            //var movedLink = _driver.FindElement(By.Id("moved"));                   // временно закоментила локаторы для других ссылок
+            //var badRequestLink = _driver.FindElement(By.Id("bad-request"));               
+            //var unauthorizedLink = _driver.FindElement(By.Id("unauthorized"));
+            //var forbiddenLink = _driver.FindElement(By.Id("forbidden"));
+            //var invalidUrlLink = _driver.FindElement(By.Id("invalid-url"));
+
+            var toolsQaImage = _driver.FindElement(By.XPath("//img[@src=\"/images/Toolsqa.jpg\"]"));  // locator inicating that a new webpage was opened (for first 2 links)
+
+            //var StatusCode = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]"));
+            //var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));
+
+            homeLink.Click();   // clicking Home link 
+            Assert.IsTrue(toolsQaImage.Displayed);  // verifying that new page with toolsQaImage locator is displayed
+
+
+            _driver.SwitchTo().Window(_driver.WindowHandles[0]);   // switching to the first browser tab
+            homeIrHZqLink.Click();     // clicking 'HomemoqPw' link 
+            Assert.IsTrue(toolsQaImage.Displayed);  // verifying that new page with toolsQaImage locator is displayed
+
+
+            // ЭТОТ ПАДАЕТ ЗАРАЗА
+            _driver.SwitchTo().Window(_driver.WindowHandles[0]);   // switching to the first browser tab
+            createdLink.Click();    // clicking 'Created' link 
+            //_driverActions.ScrollToElement(_driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]")));
+            //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
+            _javascriptExecutor.ExecuteScript("arguments[0].scrollIntoView()", _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]")));
+            var fnTextBox = _driverWait.Until(drv => drv.FindElement(By.Id("//p[@id = \"linkResponse\"]/b[1]")));
+            var StatusCode = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]"));  // finding status code page element locator
+            var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));  // finding status text page element locator
+            Assert.IsTrue(StatusCode.Text.Equals("201") && StatusText.Text.Equals("Created"));  // verifying that status code '201' and text 'Created' are displayed
+
+            // ЭТОТ ТОЖЕ
+            _driverActions.ScrollToElement(noContentLink);
+            _driverActions.SendKeys(Keys.PageUp);
+            noContentLink.Click();
+            //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
+            _driverActions.ScrollToElement(StatusText);
+            //ScrollToElement(StatusCode);
+            var a = StatusCode.Text;
+            var b = StatusText.Text;
+            Assert.IsTrue(a.Equals("204") && b.Equals("No Content"));
+
+            //ЭТИ НЕ ИМЕЕТ СМЫСЛА СМОТРЕТЬ ПОКА НЕ ИСПРАВИЛА 2 ЧТО ВЫШЕ
+            //createdLink.Click();
+            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
+
+            //createdLink.Click();
+            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
+
+            //createdLink.Click();
+            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
+
+            //createdLink.Click();
+            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
+
+            //createdLink.Click();
+            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
+
+
+        }
+
+
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
