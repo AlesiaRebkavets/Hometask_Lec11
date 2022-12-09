@@ -187,7 +187,7 @@ namespace Lecture11
             //var forbiddenLink = _driver.FindElement(By.Id("forbidden"));
             //var invalidUrlLink = _driver.FindElement(By.Id("invalid-url"));
 
-            var toolsQaImage = _driver.FindElement(By.XPath("//img[@src=\"/images/Toolsqa.jpg\"]"));  // locator inicating that a new webpage was opened (for first 2 links)
+            var toolsQaImage = _driver.FindElement(By.XPath("//img[@src='/images/Toolsqa.jpg']"));  // locator inicating that a new webpage was opened (for first 2 links)
 
             //var StatusCode = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]"));
             //var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));
@@ -206,9 +206,11 @@ namespace Lecture11
             createdLink.Click();    // clicking 'Created' link 
             //_driverActions.ScrollToElement(_driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]")));
             //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
-            _javascriptExecutor.ExecuteScript("arguments[0].scrollIntoView()", _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]")));
-            var fnTextBox = _driverWait.Until(drv => drv.FindElement(By.Id("//p[@id = \"linkResponse\"]/b[1]")));
-            var StatusCode = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]"));  // finding status code page element locator
+
+            var linkResponse1Locator = By.XPath("//p[@id = 'linkResponse']/b[1]");
+            var fnTextBox = _driverWait.Until(drv => drv.FindElements(linkResponse1Locator).Count > 0);
+            _javascriptExecutor.ExecuteScript("arguments[0].scrollIntoView()", _driver.FindElement(linkResponse1Locator));
+            var StatusCode = _driver.FindElement(linkResponse1Locator);  // finding status code page element locator
             var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));  // finding status text page element locator
             Assert.IsTrue(StatusCode.Text.Equals("201") && StatusText.Text.Equals("Created"));  // verifying that status code '201' and text 'Created' are displayed
 
@@ -219,9 +221,7 @@ namespace Lecture11
             //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
             _driverActions.ScrollToElement(StatusText);
             //ScrollToElement(StatusCode);
-            var a = StatusCode.Text;
-            var b = StatusText.Text;
-            Assert.IsTrue(a.Equals("204") && b.Equals("No Content"));
+            Assert.IsTrue(StatusCode.Text.Equals("204") && StatusText.Text.Equals("No Content"));
 
             //ЭТИ НЕ ИМЕЕТ СМЫСЛА СМОТРЕТЬ ПОКА НЕ ИСПРАВИЛА 2 ЧТО ВЫШЕ
             //createdLink.Click();
