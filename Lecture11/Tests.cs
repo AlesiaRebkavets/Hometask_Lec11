@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -29,6 +23,7 @@ namespace Lecture11
             _driverActions = new Actions(_driver);
             _javascriptExecutor = (IJavaScriptExecutor)_driver;
             _driverWait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
+            
         }
 
         [Test]
@@ -89,7 +84,7 @@ namespace Lecture11
             privateCheckbox.Click();   // selecting the element;
             var classifiedCheckbox = _driver.FindElement(By.XPath("//label[@for=\"tree-node-classified\"]/span"));  // finding classifiedCheckbox
             classifiedCheckbox.Click();  // selecting the element;
-            var youHaveSelectedLabelText = _driver.FindElement(By.XPath("//span[text()=\"private\"]")).Text + " " + _driver.FindElement(By.XPath("//span[text()=\"classified\"]")).Text;  // saving the displayed final text to a separate variable
+            var youHaveSelectedLabelText = $"{_driver.FindElement(By.XPath("//span[text()=\"private\"]")).Text} {_driver.FindElement(By.XPath("//span[text()='classified']")).Text}";  // saving the displayed final text to a separate variable
             Assert.IsTrue(youHaveSelectedLabelText.Equals("private classified"));  // verifying if the displayed text is equal to "private classified"
         }
 
@@ -114,21 +109,21 @@ namespace Lecture11
 
             Assert.IsTrue(registrationForm.Displayed);   // verifying if "Registration Form" modal opened
 
-            var FirstNameTextBox = _driver.FindElement(By.Id("firstName"));   // finding elements of registration form
-            var LastNameTextBox = _driver.FindElement(By.Id("lastName"));
-            var EmailTextBox = _driver.FindElement(By.Id("userEmail"));
-            var AgeTextBox = _driver.FindElement(By.Id("age"));
-            var SalaryTextBox = _driver.FindElement(By.Id("salary"));
-            var DepartmentTextBox = _driver.FindElement(By.Id("department"));
-            var SubmitButton = _driver.FindElement(By.Id("submit"));
+            var firstNameTextBox = _driver.FindElement(By.Id("firstName"));   // finding elements of registration form
+            var lastNameTextBox = _driver.FindElement(By.Id("lastName"));
+            var emailTextBox = _driver.FindElement(By.Id("userEmail"));
+            var ageTextBox = _driver.FindElement(By.Id("age"));
+            var salaryTextBox = _driver.FindElement(By.Id("salary"));
+            var departmentTextBox = _driver.FindElement(By.Id("department"));
+            var submitButton = _driver.FindElement(By.Id("submit"));
 
-            FirstNameTextBox.SendKeys("Walter");    // entering values to the registration form fields
-            LastNameTextBox.SendKeys("White");
-            EmailTextBox.SendKeys("heisenberg@gmail.com");
-            AgeTextBox.SendKeys("51");
-            SalaryTextBox.SendKeys("11000000");
-            DepartmentTextBox.SendKeys("Chemistry Department");
-            SubmitButton.Click();
+            firstNameTextBox.SendKeys("Walter");    // entering values to the registration form fields
+            lastNameTextBox.SendKeys("White");
+            emailTextBox.SendKeys("heisenberg@gmail.com");
+            ageTextBox.SendKeys("51");
+            salaryTextBox.SendKeys("11000000");
+            departmentTextBox.SendKeys("Chemistry Department");
+            submitButton.Click();
 
             var FirstNameTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][1]"));   // finding columns of the fourth table row
             var LastNameTableColumn = _driver.FindElement(By.XPath("//div[@role=\"rowgroup\"][4]//div[@role=\"gridcell\"][2]"));
@@ -154,9 +149,9 @@ namespace Lecture11
             var rightClickButton = _driver.FindElement(By.Id("rightClickBtn"));
             var clickButton = _driver.FindElement(By.XPath("//button[text()=\"Click Me\"]"));
 
-            _driverActions.DoubleClick(doubleClickButton).Perform();      // performing double click
-            _driverActions.ContextClick(rightClickButton).Perform();      // performing right click
-            _driverActions.Click(clickButton).Perform();                  // performing button click
+            _driverActions.DoubleClick(doubleClickButton).Build().Perform();      // performing double click
+            _driverActions.ContextClick(rightClickButton).Build().Perform();      // performing right click
+            _driverActions.Click(clickButton).Build().Perform();                  // performing button click
 
             var doubleClickMessage = _driver.FindElement(By.Id("doubleClickMessage"));   // saving locators for the messages displayed
             var rightClickMessage = _driver.FindElement(By.Id("rightClickMessage"));
@@ -172,7 +167,7 @@ namespace Lecture11
         }
 
         [Test]
-        public void LinksTest()     //test for Buttons
+        public void LinksTest()     //test for Links
         {
             _driver.Navigate().GoToUrl("https://demoqa.com/links");         // opens the indicated url
 
@@ -181,31 +176,18 @@ namespace Lecture11
 
             var createdLink = _driver.FindElement(By.Id("created"));          // locators for the other links (api)
             var noContentLink = _driver.FindElement(By.Id("no-content"));
-            //var movedLink = _driver.FindElement(By.Id("moved"));                   // временно закоментила локаторы для других ссылок
-            //var badRequestLink = _driver.FindElement(By.Id("bad-request"));               
-            //var unauthorizedLink = _driver.FindElement(By.Id("unauthorized"));
-            //var forbiddenLink = _driver.FindElement(By.Id("forbidden"));
-            //var invalidUrlLink = _driver.FindElement(By.Id("invalid-url"));
 
             var toolsQaImage = _driver.FindElement(By.XPath("//img[@src='/images/Toolsqa.jpg']"));  // locator inicating that a new webpage was opened (for first 2 links)
-
-            //var StatusCode = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]"));
-            //var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));
-
+            
             homeLink.Click();   // clicking Home link 
             Assert.IsTrue(toolsQaImage.Displayed);  // verifying that new page with toolsQaImage locator is displayed
-
-
+            
             _driver.SwitchTo().Window(_driver.WindowHandles[0]);   // switching to the first browser tab
             homeIrHZqLink.Click();     // clicking 'HomemoqPw' link 
             Assert.IsTrue(toolsQaImage.Displayed);  // verifying that new page with toolsQaImage locator is displayed
-
-
-            // ЭТОТ ПАДАЕТ ЗАРАЗА
+            
             _driver.SwitchTo().Window(_driver.WindowHandles[0]);   // switching to the first browser tab
             createdLink.Click();    // clicking 'Created' link 
-            //_driverActions.ScrollToElement(_driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[1]")));
-            //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
 
             var linkResponse1Locator = By.XPath("//p[@id = 'linkResponse']/b[1]");
             var fnTextBox = _driverWait.Until(drv => drv.FindElements(linkResponse1Locator).Count > 0);
@@ -213,37 +195,8 @@ namespace Lecture11
             var StatusCode = _driver.FindElement(linkResponse1Locator);  // finding status code page element locator
             var StatusText = _driver.FindElement(By.XPath("//p[@id = \"linkResponse\"]/b[2]"));  // finding status text page element locator
             Assert.IsTrue(StatusCode.Text.Equals("201") && StatusText.Text.Equals("Created"));  // verifying that status code '201' and text 'Created' are displayed
-
-            // ЭТОТ ТОЖЕ
-            _driverActions.ScrollToElement(noContentLink);
-            _driverActions.SendKeys(Keys.PageUp);
-            noContentLink.Click();
-            //_driverActions.SendKeys(Keys.PageDown).Perform();    // pressing 'PageDown' to make locators StatusCode and StatusText visible
-            _driverActions.ScrollToElement(StatusText);
-            //ScrollToElement(StatusCode);
-            Assert.IsTrue(StatusCode.Text.Equals("204") && StatusText.Text.Equals("No Content"));
-
-            //ЭТИ НЕ ИМЕЕТ СМЫСЛА СМОТРЕТЬ ПОКА НЕ ИСПРАВИЛА 2 ЧТО ВЫШЕ
-            //createdLink.Click();
-            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
-
-            //createdLink.Click();
-            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
-
-            //createdLink.Click();
-            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
-
-            //createdLink.Click();
-            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
-
-            //createdLink.Click();
-            //Assert.IsTrue(StatusCode.Text.Equals("") && StatusText.Text.Equals(""));
-
-
         }
-
-
-
+        
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
